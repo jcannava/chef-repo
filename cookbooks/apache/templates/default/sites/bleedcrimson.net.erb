@@ -1,0 +1,133 @@
+<VirtualHost * >
+	ServerAdmin webmaster@localhost
+	ServerName www.bleedcrimson.net
+	ServerAlias bleedcrimson.net
+	DocumentRoot /var/www/bleedcrimson.net
+	# AddOutputFilterByType DEFLATE text/html text/plain text/xml
+	SetOutputFilter DEFLATE
+	BrowserMatch ^Mozilla/4 gzip-only-text/html
+	BrowserMatch ^Mozilla/4\.0[678] no-gzip
+	BrowserMatch \bMSI[E] !no-gzip !gzip-only-text/html
+	RewriteEngine on
+	# RewriteCond %{HTTP_USER_AGENT} "Smartphone*"
+	# RewriteRule ^$	http://www.bleedcrimson.mobi	
+ 	# Don't compress images
+	SetEnvIfNoCase Request_URI \
+	\.(?:gif|jpe?g|png)$ no-gzip dont-vary
+
+	# Make sure proxies don't deliver the wrong content
+	# Header append Vary User-Agent env=!dont-vary
+	DeflateFilterNote Input input_info
+	DeflateFilterNote Output output_info
+	DeflateFilterNote Ratio ratio_info
+	LogFormat '"%r" %{output_info}n/%{input_info}n (%{ratio_info}n%%)' deflate
+	CustomLog /var/log/apache2/deflate_log deflate
+
+	# Set Expires Header for Caching
+	ExpiresActive On
+	ExpiresByType image/x-icon A604800
+	ExpiresDefault "access plus 1 years"
+
+
+	<Directory />
+		Options FollowSymLinks
+		AllowOverride All
+		FileETag +MTime +Size
+	</Directory>
+	<Directory /var/www/bleedcrimson.net>
+		Options Indexes FollowSymLinks MultiViews
+		AllowOverride All
+		Order allow,deny
+		allow from all
+		# This directive allows us to have apache2's default start page
+                # in /apache2-default/, but still have / go to the right place
+                #RedirectMatch ^/$ /var/www/bleedcrimson.net/
+		# RewriteBase /
+		# RewriteCond %{REQUEST_FILENAME} !-f
+		# RewriteCond %{REQUEST_FILENAME} !-d
+		# RewriteRule ^(.*)$ index.php?q=$1 [L,QSA]
+	</Directory>
+
+	ScriptAlias /cgi-bin/ /usr/lib/cgi-bin/
+	<Directory "/usr/lib/cgi-bin">
+		AllowOverride All
+		Options ExecCGI -MultiViews +SymLinksIfOwnerMatch
+		Order allow,deny
+		Allow from all
+	</Directory>
+
+  	Alias /awstats-icon/ /usr/share/awstats/icon/
+  	<Directory /usr/share/awstats/icon>
+    		Options None
+    		AllowOverride None
+    		Order allow,deny
+    		Allow from all
+  	</Directory>
+	ErrorLog /var/log/apache2/bleedcrimson.net.error.log
+
+	# Possible values include: debug, info, notice, warn, error, crit,
+	# alert, emerg.
+	LogLevel warn
+
+	CustomLog /var/log/apache2/bleedcrimson.net.access.log combined
+	ServerSignature On
+
+    Alias /doc/ "/usr/share/doc/"
+    <Directory "/usr/share/doc/">
+        Options Indexes MultiViews FollowSymLinks
+        AllowOverride None
+        Order deny,allow
+        Deny from all
+        Allow from 127.0.0.0/255.0.0.0 ::1/128
+    </Directory>
+
+</VirtualHost>
+<VirtualHost *>
+	ServerAdmin webmaster@localhost
+	ServerName www.bleedcrimson.info
+	ServerAlias bleedcrimson.info
+	Redirect permanent / http://www.bleedcrimson.net
+</VirtualHost>
+<VirtualHost *>
+	ServerAdmin webmaster@localhost
+	ServerName www.bleedcrimson.org
+	ServerAlias bleedcrimson.org
+	Redirect permanent / http://www.bleedcrimson.net
+</VirtualHost>
+<VirtualHost *>
+	ServerAdmin webmaster@localhost
+	ServerName www.bleedcrimson.com
+	ServerAlias bleedcrimson.com
+	Redirect permanent / http://www.bleedcrimson.net
+</VirtualHost>
+<VirtualHost *>
+        ServerAdmin webmaster@localhost
+        ServerName m.bleedcrimson.net
+	DocumentRoot /var/www/bleedcrimson.net
+        # Redirect permanent / http://www.bleedcrimson.net
+</VirtualHost>
+<VirtualHost *>
+  ServerName webmail.bleedcrimson.net
+  ServerAlias webmail.bleedcrimson.net
+  DocumentRoot /usr/share/squirrelmail
+ <Directory /usr/share/squirrelmail>
+  Options -Indexes FollowSymLinks
+  <IfModule mod_php4.c>
+   php_flag register_globals off
+   </IfModule>
+   <IfModule mod_php5.c>
+     php_flag register_globals off
+   </IfModule>
+   <IfModule mod_dir.c>
+     DirectoryIndex index.php
+   </IfModule>
+
+  # access to configtest is limited by default to prevent information leak
+   <Files configtest.php>
+     order deny,allow
+     deny from all
+     allow from 127.0.0.1
+   </Files>
+  </Directory>
+
+</VirtualHost>
