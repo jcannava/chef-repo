@@ -26,3 +26,17 @@ node['apache']['default_modules'].each do |mod|
     recipe_name = mod =~ /^mod_/ ? mod : "mod_#{mod}"
     include_recipe "apache::#{recipe_name}"
 end
+
+template "/etc/php5/apache2/php.ini" do
+    source "mods/php5.ini.erb"
+end
+
+node['apache']['default_sites'].each do |site|
+    template "/etc/apache2/sites-available/#{site}" do
+        source "sites/#{site}.erb"
+    end
+    execute "a2ensite" do
+        command "a2ensite #{site}"
+        notifies :restart, resources(:service => "apache2")
+    end
+end

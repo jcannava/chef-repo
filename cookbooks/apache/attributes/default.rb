@@ -53,3 +53,8 @@ default['apache']['default_modules'] = %w{
   status alias auth_basic authn_file authz_default authz_groupfile authz_host authz_user autoindex
   dir env mime negotiation setenvif expires headers rewrite deflate
 }
+
+# Default Sites
+default['apache']['default_sites'] = %w{
+ bleedcrimson.net cannavale.com homerealtyplus.com
+}
