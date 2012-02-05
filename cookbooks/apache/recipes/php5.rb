@@ -45,3 +45,7 @@ end
 package "php5-xmlrpc" do
     action :install
 end
+template "/etc/php5/apache2/php.ini" do
+    source "mods/php5.ini.erb"
+    notifies :restart, "service[apache2]"
+end

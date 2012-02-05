@@ -40,6 +40,7 @@ sysadmins_group = Array.new
 search(:users, 'groups:sysadmins') do |u|
     sysadmins_group << u['id']
     home_dir = "/home/#{u['id']}"
+    username = "#{u['id']}"
 
     ruby_block "reset group list" do
         block do
@@ -83,10 +84,22 @@ search(:users, 'groups:sysadmins') do |u|
         group u['gid'] || u['id']
     end
 
-
     template "/etc/sudoers" do
         source "sudoers.erb"
         mode "0440"
+    end
+
+    execute "generate ssh keys for #{username}." do
+        user u['id']
+        command "ssh-keygen -t rsa -q -f #{home_dir}/.ssh/id_rsa -P \"\""
+        not_if { node.attribute?("ssh-key generated") }
+    end
+    ruby_block "ssh-key generated" do
+      block do
+        node.set['ssh-key generated'] = true
+        node.save
+      end
+      action :nothing
     end
 end
 
