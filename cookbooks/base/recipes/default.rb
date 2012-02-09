@@ -89,17 +89,10 @@ search(:users, 'groups:sysadmins') do |u|
         mode "0440"
     end
 
-    execute "generate ssh keys for #{username}." do
+    execute "generate ssh keys #{username}." do
+        not_if { File.exists?("#{home_dir}/.ssh/id_rsa") }
         user u['id']
         command "ssh-keygen -t rsa -q -f #{home_dir}/.ssh/id_rsa -P \"\""
-        not_if { node.attribute?("ssh-key generated") }
-    end
-    ruby_block "ssh-key generated" do
-      block do
-        node.set['ssh-key generated'] = true
-        node.save
-      end
-      action :nothing
     end
 end
 

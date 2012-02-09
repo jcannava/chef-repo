@@ -1,5 +1,5 @@
 #
-# Cookbook Name:: mysql
+# Cookbook Name:: aws
 # Recipe:: default
 #
 # Copyright 2008-2009, Opscode, Inc.
@@ -17,4 +17,13 @@
 # limitations under the License.
 #
 
-include_recipe "mysql::client"
+r = gem_package "right_aws" do
+  version node['aws']['right_aws_version']
+  action :nothing
+end
+
+r.run_action(:install)
+
+require 'rubygems'
+Gem.clear_paths
+require 'right_aws'

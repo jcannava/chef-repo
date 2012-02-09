@@ -17,4 +17,33 @@
 # limitations under the License.
 #
 
-include_recipe "mysql::client"
+
+if (node.attribute?('ec2') && ! FileTest.directory?(node['mysql']['ec2_path']))
+
+  service "mysql" do
+    action :stop
+  end
+
+  execute "install-mysql" do
+    command "mv #{node['mysql']['data_dir']} #{node['mysql']['ec2_path']}"
+    not_if do FileTest.directory?(node['mysql']['ec2_path']) end
+  end
+
+  directory node['mysql']['ec2_path'] do
+    owner "mysql"
+    group "mysql"
+  end
+
+  mount node['mysql']['data_dir'] do
+    device node['mysql']['ec2_path']
+    fstype "none"
+    options "bind,rw"
+    action :mount
+  end
+
+  service "mysql" do
+    action :start
+  end
+
+end
+

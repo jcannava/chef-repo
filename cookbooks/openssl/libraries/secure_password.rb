@@ -1,8 +1,9 @@
 #
-# Cookbook Name:: mysql
-# Recipe:: default
+# Cookbook Name:: openssl
+# Library:: secure_password
+# Author:: Joshua Timberman <joshua@opscode.com>
 #
-# Copyright 2008-2009, Opscode, Inc.
+# Copyright 2009, Opscode, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -17,4 +18,20 @@
 # limitations under the License.
 #
 
-include_recipe "mysql::client"
+require 'openssl'
+
+module Opscode
+  module OpenSSL
+    module Password
+      def secure_password
+        pw = String.new
+        
+        while pw.length < 20
+          pw << ::OpenSSL::Random.random_bytes(1).gsub(/\W/, '')
+        end
+
+        pw
+      end
+    end
+  end
+end
