@@ -1,0 +1,40 @@
+#!/bin/sh
+# filter.sh
+#
+# This script redirects mail flagged as spam to a separate account
+# You must first create a user account named "spamvac" to hold the flagged mail
+
+SENDMAIL="/usr/sbin/sendmail -i"
+SPAMASSASSIN=/usr/bin/spamc
+COMMAND="$SENDMAIL $@"
+USER=`echo $COMMAND | awk '{ print $NF }' | sed 's/@.*$//'`
+NEW_COMMAND=`echo $COMMAND | awk '{ gsub($NF, "spamc"); print }'`
+
+# Exit codes from <sysexits.h>
+EX_TEMPFAIL=75
+EX_UNAVAILABLE=69
+
+umask 077
+
+OUTPUT="`mktemp /tmp/mailfilter.XXXXXXXXXX`"
+
+if [ "$?" != 0 ]; then
+    /usr/bin/logger -s -p mail.warning -t filter "Unable to create temporary file."
+    exit $EX_TEMPFAIL
+fi
+
+# Clean up when done or when aborting.
+trap "rm -f $OUTPUT" EXIT SIGTERM
+
+$SPAMASSASSIN -x -E -u $USER > $OUTPUT
+return="$?"
+if [ "$return" == 1 ]; then
+    $NEW_COMMAND < $OUTPUT
+    exit $?
+elif [ "$return" != 0 ]; then
+    /usr/bin/logger -s -p mail.warning -t filter "Temporary SpamAssassin failure (spamc return $return)"
+    exit $EX_TEMPFAIL
+fi
+
+$SENDMAIL "$@" < $OUTPUT
+exit $?

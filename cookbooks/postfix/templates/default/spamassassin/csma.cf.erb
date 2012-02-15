@@ -1,0 +1,17 @@
+# McFadden Associates - SpamAssassin Recipe
+# 1/20/2004 - http://bl.csma.biz/
+#
+# bl.csma.biz - Repeat SPAM Sources
+# sbl.csma.biz - Suspect SPAM Sources
+
+# bl.csma.biz
+header RCVD_IN_BLCSMA rbleval:check_rbl('blcsma', 'bl.csma.biz.')
+describe RCVD_IN_BLCSMA Received via a blocked site in bl.csma.biz
+tflags RCVD_IN_BLCSMA net
+score RCVD_IN_BLCSMA 5.0
+
+# sbl.csma.biz
+header RCVD_IN_SBLCSMA rbleval:check_rbl('sblcsma', 'sbl.csma.biz.')
+describe RCVD_IN_SBLCSMA Received via a blocked site in sbl.csma.biz
+tflags RCVD_IN_SBLCSMA net
+score RCVD_IN_SBLCSMA 3.0

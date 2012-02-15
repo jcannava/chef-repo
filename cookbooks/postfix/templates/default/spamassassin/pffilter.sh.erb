@@ -1,0 +1,4 @@
+#!/bin/bash
+#/usr/bin/spamc | /usr/sbin/sendmail -i "$@"
+/usr/bin/spamc | /etc/spamassassin/spam_nuke.pl "$@"
+exit $?

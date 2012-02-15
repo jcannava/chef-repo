@@ -1,0 +1,9 @@
+bayes_store_module Mail::SpamAssassin::BayesStore::MySQL
+bayes_sql_dsn dbi:mysql:<%= @db %>:<%= @db_host %>:3306
+bayes_sql_username <%= @spam_user %>
+bayes_sql_password <%= @spam_password %>
+bayes_auto_learn_threshold_spam		12.1
+bayes_auto_learn_threshold_nonspam	-12.1
+
+use_bayes 1
+bayes_auto_learn 1

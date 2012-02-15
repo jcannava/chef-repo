@@ -1,3 +1,6 @@
 # MySQL
--A FWR -p tcp -m tcp --dport 3306 -j ACCEPT
--A FWR -p udp -m udp --dport 3306 -j ACCEPT
+-A FWR -p tcp -m tcp -s localhost --dport 3306 -j ACCEPT
+-A FWR -p tcp -m tcp -s <%= node[:cloud][:local_ipv4] %> --dport 3306 -j ACCEPT
+<% node[:mysql][:allowed_webs].each do |ipaddress| -%>
+-A FWR -p tcp -m tcp -s <%= ipaddress %>/32 --dport 3306 -j ACCEPT
+<% end -%>

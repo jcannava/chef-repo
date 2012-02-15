@@ -1,0 +1,32 @@
+# Database driver: mysql, pgsql, sqlite
+driver = mysql
+
+# Examples:
+#   connect = host=192.168.1.1 dbname=users
+#   connect = host=sql.example.com dbname=virtual user=virtual password=blarg
+#   connect = /etc/dovecot/authdb.sqlite
+connect = host=<%= @db_host %> dbname=<%= @db_name %> user=<%= @mail_user %> password=<%= @mail_password %>
+
+# Example:
+#   password_query = SELECT password FROM users WHERE userid = '%n' AND domain = '%d'
+#   password_query = SELECT pw AS password FROM users WHERE userid = '%u' AND active = 'Y'
+#
+# password_query = SELECT email as user, password FROM users WHERE email = '%u'
+# password_query = SELECT concat(userid, '@', domain) AS user, password FROM users WHERE userid='%n' AND domain='%d'
+# password_query = SELECT email as user, password FROM users WHERE email='%u'
+password_query = SELECT NULL AS password, email AS user, 1010 as uid, 1011 as gid, mail FROM users WHERE email='%u' AND password=password('%w')
+
+# Query to retrieve the user information.
+# Examples
+#   user_query = SELECT home, uid, gid FROM users WHERE userid = '%n' AND domain = '%d'
+#   user_query = SELECT dir AS home, user AS uid, group AS gid FROM users where userid = '%u'
+#   user_query = SELECT home, 501 AS uid, 501 AS gid FROM users WHERE userid = '%u'
+#
+#user_query = SELECT home, uid, gid FROM users WHERE userid = '%u'
+user_query = SELECT 1010 AS uid, 1011 AS gid, mail FROM users WHERE email='%u'
+
+# If you wish to avoid two SQL lookups (passdb + userdb), you can use
+# userdb prefetch instead of userdb sql in dovecot.conf. In that case you'll
+# also have to return userdb fields in password_query prefixed with "userdb_"
+# string. For example:
+#password_query = SELECT userid as user, password, home as userdb_home, uid as userdb_uid, gid as userdb_gid FROM users WHERE userid = '%u'

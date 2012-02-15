@@ -22,11 +22,15 @@ Chef::DataBagItem
 ::Chef::Recipe.send(:include, Opscode::OpenSSL::Password)
 
 include_recipe "mysql::client"
+include_recipe "iptables"
 
 # generate all passwords
 node.set_unless['mysql']['server_debian_password'] = secure_password
 node.set_unless['mysql']['server_root_password']   = secure_password
 node.set_unless['mysql']['server_repl_password']   = secure_password
+
+node['mysql']['allowed_webs'] = Array.new
+node['mysql']['allowed_mails'] = Array.new
 
 if platform?(%w{debian ubuntu})
 
@@ -135,28 +139,47 @@ execute "mysql-install-privileges" do
 end
 
 if data_bag("db_users")
-    mysql_connection_info = {:host => node.attribute.cloud['local_ipv4'], 
+    mysql_connection_info = {:host => 'localhost', 
 			     :username => 'root',
 			     :password => node['mysql']['server_root_password']}
     db_logins = data_bag('db_users')
     db_logins.each do |login|
         user = data_bag_item("db_users", login)
-        user["password"] = secure_password unless user["password"] != ""
+        user["password"] = secure_password unless user["password"]
         user.save
-        mysql_database user["db"] do
-		connection mysql_connection_info
-		action :create
-	end
-        mysql_database_user login do
-		connection mysql_connection_info
-		password user["password"]
-		database_name user["db"]
-		host '%'
-		action :grant
+        if user["db"] != ""
+        	mysql_database user["db"] do
+			connection mysql_connection_info
+			action :create 
+		end
+        	mysql_database_user login do
+			connection mysql_connection_info
+			password user["password"]
+			database_name user["db"]
+			host '%'
+			action :grant
+        	end
+	else
+		mysql_database_user login do
+			connection mysql_connection_info
+			password user["password"]
+			host '%'
+			action :grant
+		end
         end
     end
 else 
     Chef::Log.info("Data Bag db_users is not defined")
 end 
 
+webservers = search(:node, "role:websrv")
+webservers.each do |wbnode|
+    node['mysql']['allowed_webs'] << wbnode[:cloud][:local_ipv4]
+end
 
+mailservers = search(:node, "role:mailsrv")
+mailservers.each do |mailnode|
+    node['mysql']['allowed_mails'] << mailnode[:cloud][:local_ipv4]
+end
+
+iptables_rule "port_mysql"

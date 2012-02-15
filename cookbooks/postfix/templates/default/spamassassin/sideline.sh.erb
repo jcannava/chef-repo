@@ -1,0 +1,64 @@
+#!/bin/sh
+#
+# filter-sideline.sh
+#
+# Simple filter to plug SpamAssassin into
+# the Postfix MTA, plus take action on very high scoring mail.
+# "Action" includes sending to a holding directory for later inspection 
+# ("sideline" it), diverting to another e-mail address, or deleting it.
+#
+# Note: SpamAssassin "scores" are not foolproof, but generally 
+#       messages with score 10 and over are rarely legitimate mail.
+#
+# From http://advosys.ca/papers/postfix-filtering.html
+# Advosys Consulting Inc., Ottawa
+#
+# For use with:
+#    Postfix 20010228 or later
+#    SpamAssassin 2.42 or later
+#
+# Note: Modify the file locations to match your particular
+#       server and installation of SpamAssassin.
+
+# File locations:
+# (CHANGE AS REQUIRED TO MATCH YOUR SERVER)
+INSPECT_DIR=/tmp/filter
+SENDMAIL="/usr/lib/sendmail -i"
+SPAMASSASSIN=/usr/bin/spamassassin
+EGREP=/bin/egrep
+
+# Directory to put high score spam into:
+# (NOTE: Create this directory and give it same permissions as $INSPECT_DIR)
+SIDELINE_DIR=/tmp/spam
+
+# Number of *'s in X-Spam-level header needed to sideline message:
+# (Eg. Score of 5.5 = "*****" )
+SPAMLIMIT=10
+
+export SPAMLIMIT
+
+# Exit codes from <sysexits.h>
+EX_TEMPFAIL=75
+EX_UNAVAILABLE=69
+
+cd $INSPECT_DIR || { echo $INSPECT_DIR does not exist; exit $EX_TEMPFAIL; }
+
+# Clean up when done or when aborting.
+trap "rm -f out.$$" 0 1 2 3 15
+
+# Pipe message through SA to a temp file:
+cat | $SPAMASSASSIN -L -x > out.$$
+
+# Are there more than $SPAMLIMIT stars in X-Spam-Level header? :
+if $EGREP -q "^X-Spam-Level: \*{$SPAMLIMIT,}" < out.$$
+then
+	# Option 1: Move high scoring messages to sideline dir so a human can look at them later:
+	mv out.$$ $SIDELINE_DIR/`date +%Y-%m-%d_%R`-$$
+	# Option 2: Divert to an alternate e-mail address:
+	# (Comment out the above, then uncomment next line to use this option)
+	# $SENDMAIL spamtrap@example.com < out.$$
+	# Option 3: Delete the message (Not recommended)
+	# rm -f out.$$
+fi
+
+exit 0

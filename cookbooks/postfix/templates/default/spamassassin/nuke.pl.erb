@@ -1,0 +1,22 @@
+#!/usr/bin/perl -w
+#
+# This reads in input on stdin, sees if it contains X-Spam-Status: Y,
+# and if it does it prints out nothing, and exit(0)'s.
+# Else it prints out the mail message (for local delivery
+# through sendmail)
+
+#debug ("Spam Check starting..");
+undef $/; # change line seperator
+$_ = <STDIN>; # read standard input (i.e. what's being piped in)
+
+if ($_ =~ /^X-Spam-Status: Y/m ) {
+# debug("spam detected, skipping ") ;
+exit 0;
+}
+
+# debug("Mail ok : $_");
+my $prog = "/usr/sbin/sendmail -i @ARGV";
+# debug("Program set to : $prog");
+open PROG, "|$prog" or die "Cannot spawn |$prog: $!";
+print PROG $_;
+close PROG;

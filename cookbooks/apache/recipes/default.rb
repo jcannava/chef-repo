@@ -6,6 +6,8 @@
 #
 # All rights reserved - Do Not Redistribute
 #
+include_recipe "iptables"
+
 package "apache2" do
     action :install
 end
@@ -36,6 +38,17 @@ node['apache']['default_sites'].each do |site|
     end
 end
 
+users = search(:users, 'groups:www-data')
+users.each do |u|
+    group "www-data" do
+        members u.id
+        append true
+        action :modify
+    end
+end
+
 service "apache2" do
     :restart
 end
+
+iptables_rule "port_http"

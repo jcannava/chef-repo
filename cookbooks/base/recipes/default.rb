@@ -1,3 +1,4 @@
+# 
 #
 # Cookbook Name:: base
 # Recipe:: default
@@ -6,8 +7,25 @@
 #
 # All rights reserved - Do Not Redistribute
 #
+include_recipe "iptables::default"
+
 package "mlocate" do
  action :install
+end
+
+package "sysstat" do
+ action :install
+end
+
+service "sysstat" do
+    service_name "sysstat"
+    restart_command "/usr/sbin/invoke-rc.d sysstat restart && sleep 1"
+    action :enable
+end
+
+template "/etc/default/sysstat" do
+ source "sysstat.conf.erb"
+ notifies :restart, "service[sysstat]", :immediately
 end
 
 package "vim" do
@@ -33,6 +51,10 @@ end
 
 service "ntpd" do
     action[:enable,:start]
+end
+
+package "telnet" do
+    action :install
 end
 
 sysadmins_group = Array.new
@@ -100,3 +122,5 @@ group "sysadmins" do
     gid 501
     members sysadmins_group
 end
+
+iptables_rule "port_ssh"
