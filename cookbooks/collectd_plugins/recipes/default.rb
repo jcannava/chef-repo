@@ -1,16 +1,15 @@
 #
-# Author:: Joshua Timberman(<joshua@opscode.com>)
-# Cookbook Name:: postfix
+# Cookbook Name:: collectd_plugins
 # Recipe:: default
 #
-# Copyright 2009, Opscode, Inc.
+# Copyright 2010, Atari, Inc
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
-#
+# 
 #     http://www.apache.org/licenses/LICENSE-2.0
-#
+# 
 # Unless required by applicable law or agreed to in writing, software
 # distributed under the License is distributed on an "AS IS" BASIS,
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -18,33 +17,14 @@
 # limitations under the License.
 #
 
-package "postfix" do
-  action :install
-end
+include_recipe "collectd"
 
-service "postfix" do
-  action :enable
-end
-
-package "postfix-mysql" do
-  action :install
-end
-
-package "spamassassin" do
-  action :install
-end
-
-service "spamassassin" do
-  action :enable
-end
-
-
-%w{main master}.each do |cfg|
-  template "/etc/postfix/#{cfg}.cf" do
-    source "#{cfg}.cf.erb"
-    owner "root"
-    group "root"
-    mode 0644
-    notifies :restart, resources(:service => "postfix")
-  end
-end
+# Include standard plugins
+include_recipe "collectd_plugins::syslog"
+include_recipe "collectd_plugins::rrdtool"
+include_recipe "collectd_plugins::cpu"
+include_recipe "collectd_plugins::df"
+include_recipe "collectd_plugins::disk"
+include_recipe "collectd_plugins::interface"
+include_recipe "collectd_plugins::memory"
+include_recipe "collectd_plugins::swap"
