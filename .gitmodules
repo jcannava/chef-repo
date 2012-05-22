@@ -1,0 +1,6 @@
+[submodule "cookbooks/monit"]
+	path = cookbooks/monit
+	url = git://github.com/apsoto/monit.git
+[submodule "rsyslog"]
+	path = rsyslog
+	url = https://github.com/opscode-cookbooks/rsyslog
