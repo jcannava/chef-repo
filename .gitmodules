@@ -4,3 +4,6 @@
 [submodule "rsyslog"]
 	path = rsyslog
 	url = https://github.com/opscode-cookbooks/rsyslog
+[submodule "cookbooks/rsyslog"]
+	path = cookbooks/rsyslog
+	url = https://github.com/opscode-cookbooks/rsyslog
