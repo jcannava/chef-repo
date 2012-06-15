@@ -17,6 +17,13 @@ execute "a2dissite" do
     action :run
 end
 
+template "/etc/apache2/ports.conf" do
+    source "ports.conf.erb"
+    owner "root"
+    group "root" 
+    mode "0600"
+end
+
 service "apache2" do
     service_name "apache2"
     restart_command "/usr/sbin/invoke-rc.d apache2 restart && sleep 1"
