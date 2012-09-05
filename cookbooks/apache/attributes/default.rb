@@ -56,5 +56,5 @@ default['apache']['default_modules'] = %w{
 
 # Default Sites
 default['apache']['default_sites'] = %w{
- bleedcrimson.net cannavale.com homerealtyplus.com
+ bleedcrimson.net cannavale.com homerealtyplus.com cwjcep.org
 }

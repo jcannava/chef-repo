@@ -36,10 +36,6 @@ package "git-core" do
  action :install
 end
 
-package "python2.6" do
- action :install
-end
-
 package "ntp" do
     action :install
 end
