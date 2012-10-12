@@ -1,3 +1,5 @@
 .chef/
 .swp
 data_bags/
+openrc.erb
+novarc.erb
