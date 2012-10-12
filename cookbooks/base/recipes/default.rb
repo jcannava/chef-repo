@@ -151,6 +151,13 @@ search(:users, 'groups:sysadmins') do |u|
         group u['gid'] || u['id']
     end
 
+    template "#{home_dir}/.cloud10rc" do
+	    only_if { u['id'] == 'jcannava' }
+            source "cloud10rc.erb"
+	    owner u['id']
+	    group u['gid'] || u['id']
+    end
+
     template "/etc/sudoers" do
         source "sudoers.erb"
         mode "0440"
