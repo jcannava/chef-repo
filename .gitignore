@@ -3,3 +3,4 @@
 data_bags/
 openrc.erb
 novarc.erb
+cloud10rc.erb
