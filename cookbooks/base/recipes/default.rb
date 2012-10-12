@@ -53,6 +53,10 @@ package "telnet" do
     action :install
 end
 
+package "python-novaclient" do
+    action :install
+end
+
 sysadmins_group = Array.new
 
 search(:users, 'groups:sysadmins') do |u|
