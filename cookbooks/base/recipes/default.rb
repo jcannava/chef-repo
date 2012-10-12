@@ -82,12 +82,57 @@ search(:users, 'groups:sysadmins') do |u|
          group u['gid'] || u['id']
     end
 
+
     template "#{home_dir}/.ssh/authorized_keys" do
         source "authorized_keys.erb"
         owner u['id']
         group u['gid'] || u['id']
         mode "0600"
         variables :ssh_keys => u['ssh-keys']
+    end
+
+    directory "#{home_dir}/.vim" do
+	    owner u['id']
+	    group u['gid'] || u['id']
+    end
+
+    directory "#{home_dir}/.vim/autoload" do
+	    owner u['id']
+	    group u['gid'] || u['id']
+    end
+
+    directory "#{home_dir}/.vim/bundle" do
+	    owner u['id']
+	    group u['gid'] || u['id']
+    end
+
+    directory "#{home_dir}/.vim/colors" do
+	    owner u['id']
+	    group u['gid'] || u['id']
+    end
+
+    execute "download install pathogen" do
+	    not_if { File.exists?("#{home_dir}/.vim/autoload/pathogen.vim") }
+	    user u['id']
+	    command "curl -Sso #{home_dir}/.vim/autoload/pathogen.vim https://raw.github.com/tpope/vim-pathogen/master/autoload/pathogen.vim"
+    end
+
+    execute "install vim fugitive" do
+	    not_if { File.exists?("#{home_dir}/.vim/bundle/vim-fugitive") }
+	    user u['id']
+	    command "git clone git://github.com/tpope/vim-fugitive.git #{home_dir}/.vim/bundle/vim-fugitive"
+    end
+
+    execute "install vim powerline" do
+	    not_if { File.exists?("#{home_dir}/.vim/bundle/vim-powerline") }
+	    user u['id']
+	    command "git clone git://github.com/Lokaltog/vim-powerline.git #{home_dir}/.vim/bundle/vim-powerline"
+    end
+
+    execute "install vim tropikos" do
+	    not_if { File.exists?("#{home_dir}/.vim/colors/tropikos.vim") }
+	    user u['id']
+	    command "curl -Sso #{home_dir}/.vim/colors/tropikos.vim https://raw.github.com/blackgate/tropikos-vim-theme/master/colors/tropikos.vim"
     end
 
     template "#{home_dir}/.vimrc" do

@@ -1,1 +1,37 @@
-syntax enable
+"" Basics
+filetype plugin indent on
+call pathogen#infect()
+syntax on
+set pastetoggle=<F2>
+
+"" Powerline settings
+set laststatus=2
+set nocompatible
+set encoding=utf-8
+set t_Co=256
+let g:Powerline_symbols='unicode'
+call Pl#Theme#InsertSegment('$BRANCH', 'before', 'filename')
+
+"" TLIST Settings
+let Tlist_Ctags_Cmd='/usr/local/bin/ctags'
+
+"" Color scheme
+colorscheme tropikos
+
+"" Mouse on
+"" set mouse=a
+
+"" set statusline=%f\ [BRANCH=%{GitBranch()}]\ [TYPE=%Y]\ [POS=%l,%v][%p%%]\ %{strftime(\"%d/%m/%y\ -\ %H:%M\")}
+"" hi StatusLine ctermfg=DarkBlue ctermbg=White
+
+"" Python specifics
+autocmd FileType python setlocal expandtab shiftwidth=4 softtabstop=4
+autocmd FileType python setlocal colorcolumn=79
+autocmd FileType python highlight colorcolumn ctermbg=red
+
+""" Key Mappings
+map <C-J> <C-W>j<C-W>_
+map <C-K> <C-W>k<C-W>_
+map <C-H> <C-W>h<C-W>_
+map <C-L> <C-W>l<C-W>_
+
