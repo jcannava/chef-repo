@@ -1,4 +1,5 @@
-# 
+#
+#
 #
 # Cookbook Name:: base
 # Recipe:: default
@@ -50,10 +51,6 @@ service "ntpd" do
 end
 
 package "telnet" do
-    action :install
-end
-
-package "python-novaclient" do
     action :install
 end
 
