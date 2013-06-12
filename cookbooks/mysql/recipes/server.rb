@@ -29,8 +29,8 @@ node.set_unless['mysql']['server_debian_password'] = secure_password
 node.set_unless['mysql']['server_root_password']   = secure_password
 node.set_unless['mysql']['server_repl_password']   = secure_password
 
-node['mysql']['allowed_webs'] = Array.new
-node['mysql']['allowed_mails'] = Array.new
+node.default['mysql']['allowed_webs'] = Array.new
+node.default['mysql']['allowed_mails'] = Array.new
 
 if platform?(%w{debian ubuntu})
 
@@ -65,6 +65,10 @@ end
 
 package "mysql-server" do
   action :install
+end
+
+chef_gem "mysql" do
+    action :install
 end
 
 service "mysql" do
@@ -174,12 +178,12 @@ end
 
 webservers = search(:node, "role:websrv")
 webservers.each do |wbnode|
-    node['mysql']['allowed_webs'] << wbnode[:cloud][:local_ipv4]
+    node.default['mysql']['allowed_webs'] << wbnode[:cloud][:local_ipv4]
 end
 
 mailservers = search(:node, "role:mailsrv")
 mailservers.each do |mailnode|
-    node['mysql']['allowed_mails'] << mailnode[:cloud][:local_ipv4]
+    node.default['mysql']['allowed_mails'] << mailnode[:cloud][:local_ipv4]
 end
 
 iptables_rule "port_mysql"

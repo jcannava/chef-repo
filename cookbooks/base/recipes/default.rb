@@ -1,6 +1,3 @@
-#
-#
-#
 # Cookbook Name:: base
 # Recipe:: default
 #
@@ -46,8 +43,10 @@ template "/etc/ntp.conf" do
     variables(:ntp_server => "time.nist.gov")
 end
 
-service "ntpd" do
-    action[:enable,:start]
+service "ntp" do
+    restart_command "/usr/sbin/invoke-rc.d ntp restart && sleep 1"
+    supports :status => true, :restart => true, :reload => true
+    action :enable
 end
 
 package "telnet" do
@@ -146,13 +145,6 @@ search(:users, 'groups:sysadmins') do |u|
     	source "bash_profile.erb"
         owner u['id']
         group u['gid'] || u['id']
-    end
-
-    template "#{home_dir}/.cloud10rc" do
-	    only_if { u['id'] == 'jcannava' }
-            source "cloud10rc.erb"
-	    owner u['id']
-	    group u['gid'] || u['id']
     end
 
     template "/etc/sudoers" do
